@@ -1,0 +1,72 @@
+package ejerciociocup;
+import java.io.*;
+import java_cup.runtime.*; 
+parser code
+{:
+  public void report_error(String message, Object info) {
+        
+        if("#3".equals(info.toString())){
+          System.out.println("Atención...! Error de Syntaxis: Esperaba despues de una Coma una linea y no lo que has digitado.");
+          }
+        if("#6".equals(info.toString())){
+          System.out.println("Atención...! Error de Syntaxis: Porque estas poniendo varias comas seguidas.");
+          }
+          if("#0".equals(info.toString())){
+          System.out.println("Hay Problemas...! Me estas enviando  una Sintaxis incorrecta, o una cadena Vacia");
+          }
+          if("#5".equals(info.toString())){
+          System.out.println("Atención...! Error de Syntaxis: Porque no me esperaba un ID antes de una llave");
+          }
+      if(info instanceof java_cup.runtime.Symbol) {
+      java_cup.runtime.Symbol s=((java_cup.runtime.Symbol)info);
+      /* Comprueba si el numero de línea es mayor o igual que cero */
+      String d1="";
+      String d2="";
+      if(s.left >= 0) {
+          d1=""+(s.left+1);
+          if (s.right >= 0){
+        d2=""+(s.right+1);
+        }
+      }
+       if(!d1.equals("")&&!d2.equals("")){
+       System.out.println("El error Fue identificado: en la FILA: "+d1+" y la COLUMNA: "+d2+" de tu Cadena");
+      } else{
+        System.out.println("No se ha encontrado una Cadena para Verificar el Formato JSON");
+      }    
+    }
+    }
+public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+    System.exit(1);
+    }
+
+        public static void main(String[] args){
+        try {
+            AnalizadorSintactico asin = new AnalizadorSintactico(
+                    new AnalizadorLexico( new FileReader(args[0])));
+            Object result = asin.parse().value;
+            System.out.println("\n*** Resultados finales ***");
+            } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+:}
+
+terminal  LLAVE_IZQUIERDA, LLAVE_DERECHA, DOS_PUNTOS, ID, COMA;
+non terminal Object sentencia, contenido, linea;
+
+/* ­­­­­­­­­­­­­­ Declaración de la gramática  ­­­­­­­­­­­ */
+
+sentencia ::=  LLAVE_IZQUIERDA:l1 contenido LLAVE_DERECHA:l2;
+ 
+contenido ::= linea:li
+              ;
+linea ::= ID:ct1 DOS_PUNTOS:dp ID:ct2 {:
+                    System.out.println("\n*** ES UN FORMATO JSON ***\n");
+                    System.out.println("{"+ct1+dp+ct2+"}");:} | ID:ct1 DOS_PUNTOS:dp ID:ct2 COMA linea {:
+                    System.out.println("\n*** ES UN FORMATO JSON ***\n");
+                    System.out.println("{"+"Contiene mas de Una Subcadena"+"}");:};
+
+
+
+
